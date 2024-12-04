@@ -14,6 +14,19 @@ class UserRole(str, Enum):
     MANAGER = "MANAGER"
     ADMIN = "ADMIN"
 
+def check_password_strength(password: str) -> str:
+    if not (8 <= len(password) <= 32):
+        raise ValueError("Password length must be between 8 and 32 characters.")
+    if not re.search(r"[A-Z]", password):
+        raise ValueError("Password must include at least one uppercase letter.")
+    if not re.search(r"[a-z]", password):
+        raise ValueError("Password must include at least one lowercase letter.")
+    if not re.search(r"\d", password):
+        raise ValueError("Password must include at least one numeric digit.")
+    if not re.search(r"[@$!%*?&]", password):
+        raise ValueError("Password must include at least one special character (@, $, !, %, *, ?, &).")
+    return password
+
 def validate_url(url: Optional[str]) -> Optional[str]:
     if url is None:
         return url
@@ -38,8 +51,16 @@ class UserBase(BaseModel):
         from_attributes = True
 
 class UserCreate(UserBase):
-    email: EmailStr = Field(..., example="john.doe@example.com")
-    password: str = Field(..., example="Secure*1234")
+    email: EmailStr = Field(..., example="sample.user@example.com")
+    password: str = Field(..., example="StrongPass123!")
+
+    @root_validator(pre=True)
+    def ensure_valid_password(cls, values):
+        user_password = values.get('password')
+        if user_password:
+            values['password'] = check_password_strength(user_password)
+        return values
+
 
 class UserUpdate(UserBase):
     email: Optional[EmailStr] = Field(None, example="john.doe@example.com")
@@ -66,8 +87,15 @@ class UserResponse(UserBase):
     is_professional: Optional[bool] = Field(default=False, example=True)
 
 class LoginRequest(BaseModel):
-    email: str = Field(..., example="john.doe@example.com")
-    password: str = Field(..., example="Secure*1234")
+    email: str = Field(..., example="sample.user@example.com")
+    password: str = Field(..., example="StrongPass123!")
+
+    @root_validator(pre=True)
+    def ensure_login_password_validity(cls, values):
+        user_password = values.get('password')
+        if user_password:
+            check_password_strength(user_password)
+        return values
 
 class ErrorResponse(BaseModel):
     error: str = Field(..., example="Not Found")
