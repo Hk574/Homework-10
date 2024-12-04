@@ -6,47 +6,47 @@ from app.schemas.user_schemas import UserBase, UserCreate, UserUpdate, UserRespo
 from uuid import UUID
 
 # Utility function to create a strong password for testing
-def create_strong_password():
-    return "StrongPass123!"
+def create_secure_password():
+    return "TestPass123!"
 
 @pytest.fixture
-def basic_user_data():
+def base_user_data():
     return {
         "username": "sample_user",
         "email": "sample_user@example.com",
-        "avatar_url": "https://example.com/avatar.jpg",
+        "avatar_url": "http://example.com/avatar.jpg",
     }
 
 @pytest.fixture
-def new_user_data():
+def create_user_data():
     return {
         "username": "new_sample_user",
         "email": "new_user@example.com",
-        "password": create_strong_password(),
+        "password": create_secure_password(),
     }
 
 @pytest.fixture
-def updated_user_data():
+def update_user_data():
     return {
         "email": "updated_user@example.com",
-        "first_name": "UpdatedFirstName",
+        "first_name": "UpdatedUser",
     }
 
 @pytest.fixture
 def response_user_data():
     return {
-        "id": UUID('123e4567-e89b-12d3-a456-426614174000'),
+        "id": UUID('123e4567-e89b-12d3-a456-426614174001'),
         "username": "sample_user",
         "email": "sample_user@example.com",
-        "avatar_url": "https://example.com/avatar.jpg",
-        "last_active_at": "2024-12-02T15:00:00Z",
+        "avatar_url": "http://example.com/avatar.jpg",
+        "last_active_at": "2024-12-02T10:00:00Z",
     }
 
 @pytest.fixture
 def auth_request_data():
     return {
         "email": "sample_user@example.com",
-        "password": create_strong_password(),
+        "password": create_secure_password(),
     }
 
 
@@ -109,8 +109,8 @@ def test_user_base_url_invalid(url, user_base_data):
 def test_user_base_invalid_email():
     invalid_data = {
         "nickname": "test",
-        "email": "invalid_mail",
-        "profile_picture_url": "profile.jpg",
+        "email": "mail",
+        "profile_picture_url": "http://profile.jpg",
     }
     with pytest.raises(ValidationError) as exc_info:
         UserBase(**invalid_data)
